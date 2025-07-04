@@ -9,6 +9,9 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <meta-data
+            android:name="io.flutter.embedded_views_preview"
+            android:value="true" />
+        <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyBT7hduil6J4mWt_S0bYYa8f7YrkVWSqI4"/>
         <activity

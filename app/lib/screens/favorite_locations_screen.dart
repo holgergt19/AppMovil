@@ -1,92 +1,47 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../view_models/favorites_view_model.dart';
-import '../view_models/auth_view_model.dart';
-import '../view_models/ride_view_model.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../models/favorite_location.dart';
-import 'plan_trip_screen.dart';
 
-class FavoriteLocationsScreen extends StatefulWidget {
-  static const routeName = '/favorites';
-  const FavoriteLocationsScreen({Key? key}) : super(key: key);
+class FavoriteLocationsScreen extends StatelessWidget {
+  static const String routeName = '/favoriteLocations';
+  final void Function(LatLng) onLocationSelected;
 
-  @override
-  State<FavoriteLocationsScreen> createState() =>
-      _FavoriteLocationsScreenState();
-}
-
-class _FavoriteLocationsScreenState extends State<FavoriteLocationsScreen> {
-  @override
-  void initState() {
-    super.initState();
-    final uid = context.read<AuthViewModel>().user!.uid;
-    context.read<FavoritesViewModel>().loadFavorites(uid);
-  }
+  const FavoriteLocationsScreen({Key? key, required this.onLocationSelected})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final favVm = context.watch<FavoritesViewModel>();
-    final uid = context.read<AuthViewModel>().user!.uid;
+    // Ejemplo estático; podrías cargar de tu ViewModel o un servicio
+    final List<FavoriteLocation> locations = [
+      FavoriteLocation(
+        id: '1',
+        label: 'Casa',
+        location: const LatLng(-0.2299, -78.5249),
+      ),
+      FavoriteLocation(
+        id: '2',
+        label: 'Trabajo',
+        location: const LatLng(-0.1807, -78.4678),
+      ),
+    ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Favoritos')),
+      appBar: AppBar(title: const Text('Ubicaciones Favoritas')),
       body: ListView.builder(
-        itemCount: favVm.favorites.length,
-        itemBuilder: (_, i) {
-          final fav = favVm.favorites[i];
+        itemCount: locations.length,
+        itemBuilder: (context, index) {
+          final loc = locations[index];
           return ListTile(
-            title: Text(fav.label),
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => const PlanTripScreen()),
-              ).then((_) {
-                context.read<RideViewModel>().setDestination(fav.location);
-              });
-            },
-            trailing: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () => favVm.removeFavorite(uid, fav.id),
+            title: Text(loc.label),
+            subtitle: Text(
+              '${loc.location.latitude}, ${loc.location.longitude}',
             ),
+            onTap: () {
+              onLocationSelected(loc.location);
+              Navigator.pop(context);
+            },
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () async {
-          final rideVm = context.read<RideViewModel>();
-          final dest = rideVm.destination;
-          if (dest == null) return;
-
-          String label = '';
-          await showDialog(
-            context: context,
-            builder:
-                (_) => AlertDialog(
-                  title: const Text('Etiqueta'),
-                  content: TextField(
-                    onChanged: (v) => label = v,
-                    decoration: const InputDecoration(
-                      hintText: 'Casa, Trabajo...',
-                    ),
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Cancelar'),
-                    ),
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Guardar'),
-                    ),
-                  ],
-                ),
-          );
-          if (label.isNotEmpty) {
-            await favVm.addFavorite(uid, label, dest);
-          }
-        },
-        label: const Text('Agregar'),
-        icon: const Icon(Icons.add),
       ),
     );
   }

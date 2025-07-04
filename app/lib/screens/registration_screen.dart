@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view_models/auth_view_model.dart';
+import '../widget/role_selector.dart';
+import 'login_screen.dart';
+import 'user_home_screen.dart';
+import 'driver_home_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
   static const routeName = '/register';
@@ -12,6 +16,7 @@ class RegistrationScreen extends StatefulWidget {
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
+  String _selectedRole = 'user'; // 'user' o 'driver'
   final _nameCtrl = TextEditingController();
   final _phoneCtrl = TextEditingController();
   final _emailCtrl = TextEditingController();
@@ -41,6 +46,14 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   key: _formKey,
                   child: ListView(
                     children: [
+                      // Selector de rol
+                      RoleSelector(
+                        onRoleSelected: (r) {
+                          setState(() => _selectedRole = r);
+                        },
+                      ),
+                      const SizedBox(height: 16),
+
                       TextFormField(
                         controller: _nameCtrl,
                         decoration: const InputDecoration(labelText: 'Nombre'),
@@ -96,9 +109,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             phone: _phoneCtrl.text.trim(),
                             email: _emailCtrl.text.trim(),
                             password: _passCtrl.text,
+                            role: _selectedRole, // ← pasamos role
                           );
                           if (authVm.user != null) {
-                            Navigator.pushReplacementNamed(context, '/home');
+                            Navigator.pushReplacementNamed(
+                              context,
+                              _selectedRole == 'driver'
+                                  ? DriverHomeScreen.routeName
+                                  : UserHomeScreen.routeName,
+                            );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -108,6 +127,15 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                           }
                         },
                         child: const Text('Registrarse'),
+                      ),
+                      const SizedBox(height: 12),
+                      TextButton(
+                        onPressed:
+                            () => Navigator.pushReplacementNamed(
+                              context,
+                              LoginScreen.routeName,
+                            ),
+                        child: const Text('¿Ya tienes cuenta? Inicia sesión'),
                       ),
                     ],
                   ),

@@ -12,41 +12,49 @@ class AuthViewModel extends ChangeNotifier {
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  /// Registra un nuevo usuario
+  /// Registra un nuevo usuario (ahora con role)
   Future<void> register({
-    required String email,
-    required String password,
     required String name,
     required String phone,
+    required String email,
+    required String password,
+    required String role, // ← nuevo parámetro
     String? photoUrl,
   }) async {
     _isLoading = true;
     notifyListeners();
+
     final cred = await _auth.createUserWithEmailAndPassword(
       email: email,
       password: password,
     );
     user = cred.user;
+
+    // guardamos perfil con role
     await _db.createUserProfile(
       uid: user!.uid,
       name: name,
       phone: phone,
       photoUrl: photoUrl ?? '',
+      role: role, // ← pasamos role
     );
+
     await loadUserProfile();
     _isLoading = false;
     notifyListeners();
   }
 
-  /// Hace login (antes lo llamabas login)
+  /// Hace login y carga perfil
   Future<void> login({required String email, required String password}) async {
     _isLoading = true;
     notifyListeners();
+
     final cred = await _auth.signInWithEmailAndPassword(
       email: email,
       password: password,
     );
     user = cred.user;
+
     await loadUserProfile();
     _isLoading = false;
     notifyListeners();
@@ -59,22 +67,6 @@ class AuthViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateProfile({
-    String? name,
-    String? phone,
-    String? photoUrl,
-  }) async {
-    if (user == null) return;
-    await _db.updateUserProfile(
-      uid: user!.uid,
-      name: name,
-      phone: phone,
-      photoUrl: photoUrl,
-    );
-    await loadUserProfile();
-  }
-
-  /// Cierra sesión
   Future<void> logout() async {
     await _auth.signOut();
     user = null;

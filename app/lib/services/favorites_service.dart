@@ -14,6 +14,7 @@ class FavoritesService {
           'label': label,
           'lat': loc.latitude,
           'lng': loc.longitude,
+
           'createdAt': FieldValue.serverTimestamp(),
         });
   }
@@ -41,6 +42,7 @@ class FavoritesService {
                     (doc) => FavoriteLocation(
                       id: doc.id,
                       label: doc['label'],
+
                       location: LatLng(doc['lat'], doc['lng']),
                     ),
                   )

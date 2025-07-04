@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 import '../view_models/auth_view_model.dart';
+import '../widget/role_selector.dart';
+import 'registration_screen.dart';
+import 'user_home_screen.dart';
+import 'driver_home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   static const routeName = '/login';
@@ -15,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passCtrl = TextEditingController();
+  String _selectedRole = 'user'; // 'user' o 'driver'
 
   @override
   void dispose() {
@@ -48,10 +53,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
 
-                    // Animación Lottie (o cualquier logo)
-                    Lottie.asset('assets/animations/home.json', height: 180),
+                    // Selector de rol
+                    RoleSelector(
+                      onRoleSelected: (r) {
+                        setState(() => _selectedRole = r);
+                      },
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Animación Lottie
+                    Lottie.asset('assets/animations/home.json', height: 140),
 
                     const SizedBox(height: 16),
 
@@ -102,9 +116,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                     password: _passCtrl.text,
                                   );
                                   if (authVm.user != null) {
+                                    final role =
+                                        authVm.profile?['role'] as String? ??
+                                        'user';
+                                    if (role != _selectedRole) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Rol incorrecto para estas credenciales',
+                                          ),
+                                        ),
+                                      );
+                                      return;
+                                    }
                                     Navigator.pushReplacementNamed(
                                       context,
-                                      '/home',
+                                      role == 'driver'
+                                          ? DriverHomeScreen.routeName
+                                          : UserHomeScreen.routeName,
                                     );
                                   } else {
                                     ScaffoldMessenger.of(context).showSnackBar(
@@ -122,8 +153,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             const SizedBox(height: 12),
                             TextButton(
                               onPressed:
-                                  () =>
-                                      Navigator.pushNamed(context, '/register'),
+                                  () => Navigator.pushNamed(
+                                    context,
+                                    RegistrationScreen.routeName,
+                                  ),
                               child: const Text(
                                 '¿No tienes cuenta? Regístrate',
                                 style: TextStyle(color: Colors.yellow),

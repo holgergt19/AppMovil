@@ -13,13 +13,14 @@ import 'view_models/payment_view_model.dart';
 import 'view_models/rating_view_model.dart';
 import 'view_models/favorites_view_model.dart';
 
-import 'screens/destination_entry_screen.dart';
+import 'models/ride_request.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/registration_screen.dart';
 import 'screens/user_home_screen.dart';
 import 'screens/plan_trip_screen.dart';
 import 'screens/ride_options_screen.dart';
+import 'screens/waiting_for_driver_screen.dart'; // ← nueva pantalla
 import 'screens/ride_request_screen.dart';
 import 'screens/payment_screen.dart';
 import 'screens/rating_screen.dart';
@@ -62,24 +63,33 @@ class TaxiApp extends StatelessWidget {
           LoginScreen.routeName: (_) => const LoginScreen(),
           RegistrationScreen.routeName: (_) => const RegistrationScreen(),
           UserHomeScreen.routeName: (_) => const UserHomeScreen(),
+
           PlanTripScreen.routeName: (_) => const PlanTripScreen(),
           RideOptionsScreen.routeName: (_) => const RideOptionsScreen(),
+          WaitingForDriverScreen.routeName:
+              (_) => const WaitingForDriverScreen(), // ← aquí
           RideRequestScreen.routeName: (_) => const RideRequestScreen(),
           PaymentScreen.routeName: (_) => const PaymentScreen(),
           RatingScreen.routeName: (_) => const RatingScreen(),
-          DestinationEntryScreen.routeName:
-              (_) => const DestinationEntryScreen(),
-
-          RideTrackingScreen.routeName: (_) => const RideTrackingScreen(),
+          RideTrackingScreen.routeName: (ctx) {
+            // recibimos RideRequest desde navegación
+            final ride = ModalRoute.of(ctx)!.settings.arguments as RideRequest;
+            return RideTrackingScreen(rideRequest: ride);
+          },
           RideHistoryScreen.routeName: (_) => const RideHistoryScreen(),
           FavoriteLocationsScreen.routeName:
-              (_) => const FavoriteLocationsScreen(),
+              (_) => FavoriteLocationsScreen(onLocationSelected: (_) {}),
           ProfileScreen.routeName: (_) => const ProfileScreen(),
+
           DriverHomeScreen.routeName: (_) => const DriverHomeScreen(),
-          DriverTripDetailScreen.routeName:
-              (_) => const DriverTripDetailScreen(),
-          DriverActiveTripScreen.routeName:
-              (_) => const DriverActiveTripScreen(),
+          DriverTripDetailScreen.routeName: (ctx) {
+            final ride = ModalRoute.of(ctx)!.settings.arguments as RideRequest;
+            return DriverTripDetailScreen(rideRequest: ride);
+          },
+          DriverActiveTripScreen.routeName: (ctx) {
+            final ride = ModalRoute.of(ctx)!.settings.arguments as RideRequest;
+            return DriverActiveTripScreen(rideRequest: ride);
+          },
           DriverHistoryScreen.routeName: (_) => const DriverHistoryScreen(),
         },
       ),

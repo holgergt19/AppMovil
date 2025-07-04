@@ -1,85 +1,69 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import '../view_models/driver_view_model.dart';
 import '../models/ride_request.dart';
-import 'driver_trip_detail_screen.dart';
+import '../widget/bottom_nav_bar.dart';
+import 'profile_screen.dart'; // ahora exporta solo el contenido
 
 class DriverHomeScreen extends StatefulWidget {
-  static const routeName = '/driver-home';
+  static const String routeName = DriverViewModel.driverHomeRoute;
+
   const DriverHomeScreen({Key? key}) : super(key: key);
 
   @override
-  State<DriverHomeScreen> createState() => _DriverHomeScreenState();
+  _DriverHomeScreenState createState() => _DriverHomeScreenState();
 }
 
 class _DriverHomeScreenState extends State<DriverHomeScreen> {
-  late final String _uid;
+  int _currentIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _uid = FirebaseAuth.instance.currentUser!.uid;
-    context.read<DriverViewModel>().loadStatus(_uid);
+    context.read<DriverViewModel>().fetchAvailableRides();
   }
 
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<DriverViewModel>();
+    final rides = vm.availableRides;
+
+    // Vistas de cada pestaña
+    final pages = [
+      // Inicio
+      rides.isEmpty
+          ? const Center(child: Text('No hay viajes disponibles'))
+          : ListView.builder(
+            itemCount: rides.length,
+            itemBuilder: (_, i) {
+              final r = rides[i];
+              return ListTile(
+                title: Text('Destino: ${r.destinationName}'),
+                subtitle: Text('Usuario: ${r.userName}'),
+                onTap: () {
+                  Navigator.pushNamed(
+                    context,
+                    DriverViewModel.driverTripDetailRoute,
+                    arguments: r,
+                  );
+                },
+              );
+            },
+          ),
+
+      // Perfil conductor (sin Scaffold)
+      const ProfileContent(),
+    ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Solicitudes'),
-        actions: [
-          Row(
-            children: [
-              Text(vm.isAvailable ? 'Disponible' : 'Ocupado'),
-              Switch(
-                value: vm.isAvailable,
-                onChanged: (v) => vm.toggleAvailable(_uid, v),
-              ),
-            ],
-          ),
-        ],
+        title: Text(_currentIndex == 0 ? 'Inicio Conductor' : 'Mi Perfil'),
       ),
-      body: StreamBuilder<List<RideRequest>>(
-        stream: vm.pendingRequests,
-        builder: (_, snap) {
-          if (!snap.hasData)
-            return const Center(child: CircularProgressIndicator());
-          final list = snap.data!;
-          if (list.isEmpty)
-            return const Center(child: Text('No hay solicitudes'));
-          return ListView.builder(
-            itemCount: list.length,
-            itemBuilder: (_, i) {
-              final r = list[i];
-              return ListTile(
-                title: Text('Usuario: ${r.userId}'),
-                subtitle: Text('Status: ${r.status}'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextButton(
-                      onPressed: () => vm.acceptRide(r.id, _uid),
-                      child: const Text('Aceptar'),
-                    ),
-                    TextButton(
-                      onPressed: () {}, // Rechazar si lo implementas
-                      child: const Text('Rechazar'),
-                    ),
-                  ],
-                ),
-                onTap:
-                    () => Navigator.pushNamed(
-                      context,
-                      DriverTripDetailScreen.routeName,
-                      arguments: r,
-                    ),
-              );
-            },
-          );
-        },
+      body: pages[_currentIndex],
+      bottomNavigationBar: BottomNavBar(
+        currentIndex: _currentIndex,
+        onTap: (idx) => setState(() => _currentIndex = idx),
       ),
     );
   }

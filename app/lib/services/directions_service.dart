@@ -12,7 +12,7 @@ class DirectionsResult {
 
 class DirectionsService {
   // Reemplaza con tu clave de API o preferiblemente usa variables de entorno
-  static const _apiKey = 'TU_API_KEY_DE_GOOGLE';
+  static const _apiKey = 'AIzaSyBT7hduil6J4mWt_S0bYYa8f7YrkVWSqI4';
 
   /// Consulta la Directions API de Google
   Future<DirectionsResult> getDirections({

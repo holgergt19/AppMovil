@@ -21,8 +21,20 @@ class _RatingScreenState extends State<RatingScreen> {
   Widget build(BuildContext context) {
     final rateVm = context.watch<RatingViewModel>();
     final rideVm = context.read<RideViewModel>();
-    final rideId = rideVm.rideId!;
-    final driverId = rideVm.assignedDriverId!;
+
+    // Usamos null-aware para evitar String? → String error
+    final rideId = rideVm.rideId ?? '';
+    final driverId = rideVm.assignedDriverId ?? '';
+
+    // Si no tenemos IDs válidos, mostramos un mensaje
+    if (rideId.isEmpty || driverId.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Califica tu viaje')),
+        body: const Center(
+          child: Text('No hay un viaje activo para calificar.'),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(title: const Text('Califica tu viaje')),
@@ -34,6 +46,7 @@ class _RatingScreenState extends State<RatingScreen> {
                 child: Column(
                   children: [
                     const Text('¿Cómo fue tu viaje?'),
+                    const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(5, (i) {
