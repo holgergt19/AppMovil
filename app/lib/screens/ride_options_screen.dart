@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view_models/ride_view_model.dart';
+import 'plan_trip_screen.dart';
 
 class RideOptionsScreen extends StatelessWidget {
   static const String routeName = '/ride-options';
@@ -43,7 +44,15 @@ class RideOptionsScreen extends StatelessWidget {
             ),
             const Spacer(),
             ElevatedButton(
-              onPressed: () => vm.requestRide(context),
+              onPressed: () {
+                // En lugar de pedir el viaje aquí, vamos a seleccionar pickup
+                Navigator.pushNamed(
+                  context,
+                  PlanTripScreen.routeName,
+                  arguments:
+                      true, // true = pantalla de selección de punto de partida
+                );
+              },
               child: const Text('Confirmar viaje'),
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size.fromHeight(48),

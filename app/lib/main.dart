@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
+
 import 'firebase_options.dart';
-
 import 'theme/app_theme.dart';
-
 import 'view_models/auth_view_model.dart';
 import 'view_models/home_view_model.dart';
 import 'view_models/ride_view_model.dart';
@@ -20,7 +19,7 @@ import 'screens/registration_screen.dart';
 import 'screens/user_home_screen.dart';
 import 'screens/plan_trip_screen.dart';
 import 'screens/ride_options_screen.dart';
-import 'screens/waiting_for_driver_screen.dart'; // ← nueva pantalla
+import 'screens/waiting_for_driver_screen.dart';
 import 'screens/ride_request_screen.dart';
 import 'screens/payment_screen.dart';
 import 'screens/rating_screen.dart';
@@ -57,22 +56,25 @@ class TaxiApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Taxi App',
+
+        // 🔧 Aplicamos siempre el tema Dark-Chrome
+        themeMode: ThemeMode.dark,
         theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.lightTheme,
+
         initialRoute: LoginScreen.routeName,
         routes: {
           LoginScreen.routeName: (_) => const LoginScreen(),
           RegistrationScreen.routeName: (_) => const RegistrationScreen(),
           UserHomeScreen.routeName: (_) => const UserHomeScreen(),
-
           PlanTripScreen.routeName: (_) => const PlanTripScreen(),
           RideOptionsScreen.routeName: (_) => const RideOptionsScreen(),
           WaitingForDriverScreen.routeName:
-              (_) => const WaitingForDriverScreen(), // ← aquí
+              (_) => const WaitingForDriverScreen(),
           RideRequestScreen.routeName: (_) => const RideRequestScreen(),
           PaymentScreen.routeName: (_) => const PaymentScreen(),
           RatingScreen.routeName: (_) => const RatingScreen(),
           RideTrackingScreen.routeName: (ctx) {
-            // recibimos RideRequest desde navegación
             final ride = ModalRoute.of(ctx)!.settings.arguments as RideRequest;
             return RideTrackingScreen(rideRequest: ride);
           },
@@ -80,7 +82,6 @@ class TaxiApp extends StatelessWidget {
           FavoriteLocationsScreen.routeName:
               (_) => FavoriteLocationsScreen(onLocationSelected: (_) {}),
           ProfileScreen.routeName: (_) => const ProfileScreen(),
-
           DriverHomeScreen.routeName: (_) => const DriverHomeScreen(),
           DriverTripDetailScreen.routeName: (ctx) {
             final ride = ModalRoute.of(ctx)!.settings.arguments as RideRequest;

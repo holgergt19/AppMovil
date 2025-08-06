@@ -4,18 +4,19 @@ import 'package:google_maps_webservice/places.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PlacesService {
-  static const _apiKey = 'AIzaSyBT7hduil6J4mWt_S0bYYa8f7YrkVWSqI4';
+  static const _apiKey = 'TU_API_KEY_AQUI';
   final GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: _apiKey);
 
-  /// Muestra el autocomplete y devuelve la predicción seleccionada
+  /// Muestra el autocomplete (incluye direcciones y establecimientos)
   Future<Prediction?> showAutocomplete(BuildContext context) {
     return PlacesAutocomplete.show(
       context: context,
       apiKey: _apiKey,
-      mode: Mode.overlay, // o fullscreen
+      mode: Mode.overlay,
       language: 'es',
       components: [Component(Component.country, 'ec')],
-      hint: 'Buscar ubicación',
+      types: ['establishment', 'geocode'], // <-- incluir negocios y direcciones
+      hint: 'Buscar destino (ej. restaurante, tienda)...',
     );
   }
 

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- TODO: reemplaza "TU_API_KEY" por tu propia clave de Maps -->
+    <string name="google_maps_key">AIzaSyBT7hduil6J4mWt_S0bYYa8f7YrkVWSqI4</string>
+</resources>
